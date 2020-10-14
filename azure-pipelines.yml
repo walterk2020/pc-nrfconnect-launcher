@@ -146,7 +146,11 @@ jobs:
   # Internal procedure end
   - bash: |
       set -o errexit -o pipefail
+<<<<<<< HEAD
       npm ci
+=======
+      npm i
+>>>>>>> 4bb8c4f (Fix out of the box linting)
       npm run lint
       npm run build
       npm test
@@ -157,7 +161,11 @@ jobs:
       set -o errexit -o pipefail
       npm i -g node-gyp@6.0.1
       npm config set node_gyp "C:\npm\prefix\node_modules\node-gyp\bin\node-gyp.js"
+<<<<<<< HEAD
       npm ci
+=======
+      npm i
+>>>>>>> 4bb8c4f (Fix out of the box linting)
       npm run lint
       npm run build
       npm test
