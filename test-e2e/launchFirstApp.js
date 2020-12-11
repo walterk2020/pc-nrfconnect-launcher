@@ -34,7 +34,9 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-const sleep = millis => new Promise(resolve => setTimeout(resolve, millis));
+function sleep(millis) {
+    return new Promise(resolve => setTimeout(resolve, millis));
+}
 
 const waitForSecondWindow = async app => {
     for (let retry = 0; retry < 5; retry += 1) {
