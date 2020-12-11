@@ -50,6 +50,12 @@ $body-bg: #d9e1e2;
 
 @import "./pretty-scrollbar";
 
+body {
+    -webkit-user-select: none;
+    -webkit-app-region: drag;
+    cursor: default;
+}
+
 #webapp {
     display: grid;
     grid-template-rows: 0fr 1fr;
@@ -58,6 +64,7 @@ $body-bg: #d9e1e2;
     .nav {
         background-color: theme-color("primary");
         padding: 0.5rem 2rem;
+        align-items: center;
 
         .nav-link {
             height: 3rem;
@@ -65,9 +72,9 @@ $body-bg: #d9e1e2;
             color: #fff;
             text-transform: uppercase;
             font-weight: 300;
+            align-items: center;
 
             display: flex;
-            align-items: center;
 
             &.active {
                 font-weight: bold;
@@ -75,24 +82,18 @@ $body-bg: #d9e1e2;
             }
         }
 
-        .core-logo-container {
-            margin-right: 1rem;
-            margin-left: auto;
-
-            display: flex;
-            align-items: center;
-
-            cursor: pointer;
-
-            .core-logo {
-                height: 2.5rem;
-            }
+        .core19-logo {
+            height: 2.5rem;
         }
     }
 
     .tab-content {
         @extend %pretty-scrollbar;
         padding: 2rem;
+
+        #launcher-tabpane-apps {
+            margin-top: -1rem;
+        }
     }
 }
 
@@ -212,4 +213,42 @@ $body-bg: #d9e1e2;
     h3 {
         font-size: 1rem;
     }
+}
+
+
+.filterbox {
+    > * {
+        margin-left: 0.75em;
+    }
+    :first-child {
+        margin-left: 0;
+    }
+
+    .btn .mdi {
+        margin-right: 0.25rem;
+    }
+    .btn:not(:hover) {
+        background: white;
+        color: $text-muted;
+    }
+    .dropdown-toggle::after {
+        display: none;
+    }
+    .form-control {
+        line-height: 1em;
+        height: initial !important;
+        width: initial !important;
+        border-color: $secondary;
+        padding: 0.29rem 0.75rem;
+    }
+}
+
+.user-data-policy {
+    overflow-y: scroll;
+    height: 40vh;
+}
+
+.dropdown-toggle:empty::after {
+    position: relative;
+    top: 2px;
 }

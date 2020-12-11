@@ -1,36 +1,42 @@
 {
     "name": "nrfconnect",
-    "version": "3.3.3",
+    "version": "3.6.0",
     "description": "nRF Connect for PC",
     "repository": {
         "type": "git",
-        "url": "https://github.com/NordicSemiconductor/pc-nrfconnect-core.git"
+        "url": "https://github.com/NordicSemiconductor/pc-nrfconnect-launcher.git"
     },
-    "main": "index.js",
+    "main": "src/main",
     "scripts": {
         "start": "echo 'please run `npm run dev` in one tab and then `npm run app` in another one'",
-        "postinstall": "npm run get-jlink && npm run fix-serialport",
-        "fix-serialport": "cp ./serialport-prebuild-installrc ./node_modules/@serialport/bindings/.prebuild-installrc && electron-builder install-app-deps",
+        "postinstall": "npm run get-jlink",
         "app": "electron .",
-        "dev": "nrfconnect-scripts build-watch",
-        "webpack": "nrfconnect-scripts build-dev",
-        "build": "nrfconnect-scripts build-prod",
-        "lint": "nrfconnect-scripts lint main lib index.js",
-        "test": "jest --testResultsProcessor jest-bamboo-formatter",
-        "test-watch": "jest --watch",
-        "test-e2e": "xvfb-maybe jest --runInBand --config test/setup/jest-e2e.json",
-        "test-e2e-offline": "xvfb-maybe jest --runInBand --config test/setup/jest-e2e-offline.json",
-        "test-e2e-online": "xvfb-maybe jest --runInBand --config test/setup/jest-e2e-online.json",
+        "dev": "npm run lint-init && nrfconnect-scripts build-watch",
+        "webpack": "npm run lint-init && nrfconnect-scripts build-dev",
+        "build": "npm run lint-init && nrfconnect-scripts build-prod",
+        "lint-init": "nrfconnect-scripts lint-init",
+        "lint": "nrfconnect-scripts lint src test-e2e *.js",
+        "test": "jest --testResultsProcessor jest-bamboo-formatter src/",
+        "test-watch": "jest --watch src/",
+        "test-e2e": "xvfb-maybe jest --runInBand --moduleNameMapper '{}' --testTimeout=15000 --forceExit test-e2e/",
         "clean": "npm install rimraf && npm run clean-build && npm run clean-release && npm run clean-modules",
         "clean-build": "rimraf dist && rimraf build/nrfjprog",
         "clean-release": "rimraf release",
         "clean-modules": "rimraf \"node_modules/!(rimraf|.bin)\"",
         "get-jlink": "get-jlink -o build",
         "pack": "npm run build && electron-builder -p never",
-        "release": "electron-builder -p always"
+        "release": "electron-builder -p always",
+        "install-devtools": "electron . --install-devtools",
+        "remove-devtools": "electron . --remove-devtools"
     },
     "author": "Nordic Semiconductor ASA",
     "license": "Proprietary",
+    "binary": {
+        "module_name": "pc-nrfjprog-js",
+        "module_path": "./build/Release",
+        "host": "https://github.com/NordicSemiconductor/pc-nrfjprog-js/releases/download/",
+        "remote_path": "v{version}"
+    },
     "build": {
         "appId": "com.nordicsemi.nrfconnect",
         "productName": "nRF Connect",
@@ -40,15 +46,14 @@
         ],
         "files": [
             "dist/",
-            "main/",
+            "src/main/",
             "node_modules/",
             "!node_modules/pc-nrfjprog-js/nrfjprog",
             "resources/*.html",
             "resources/*.png",
             "resources/*.ico",
             "resources/*.svg",
-            "resources/mac/",
-            "index.js"
+            "resources/mac/"
         ],
         "directories": {
             "output": "release"
@@ -108,62 +113,68 @@
         }
     },
     "devDependencies": {
-        "asar": "2.0.1",
+        "asar": "3.0.3",
         "bootstrap": "4.3.1",
-        "electron": "5.0.6",
-        "electron-builder": "22.4.1",
-        "electron-is-dev": "1.1.0",
-        "electron-notarize": "0.2.1",
-        "mini-css-extract-plugin": "0.8.0",
-        "moment": "2.24.0",
-        "mousetrap": "1.6.3",
-        "pc-nrfconnect-devdep": "git+https://github.com/NordicSemiconductor/pc-nrfconnect-devdep.git#v3.1.0",
-        "prettysize": "2.0.0",
-        "react-infinite": "github:NordicSemiconductor/react-infinite#react-15.5",
-        "redux-logger": "3.0.6",
-        "redux-thunk": "2.3.0",
+        "electron": "8.2.5",
+        "electron-builder": "22.7.0",
+        "electron-devtools-installer": "3.1.1",
+        "electron-is-dev": "1.2.0",
+        "electron-notarize": "0.3.0",
+        "mini-css-extract-plugin": "0.9.0",
+        "pc-nrfconnect-build": "git+https://github.com/NordicPlayground/pc-nrfconnect-build.git#semver:0.3.0",
+        "pc-nrfconnect-shared": "github:NordicSemiconductor/pc-nrfconnect-shared#v4.13.0",
         "spectron": "7.0.0",
-        "tar": "4.4.10",
-        "util": "0.12.0",
-        "winston": "3.2.1",
+        "tar": "6.0.2",
         "xvfb-maybe": "0.2.1"
     },
     "dependencies": {
         "@mdi/font": "3.7.95",
-        "axios": "0.19.0",
+        "axios": "0.19.2",
         "chmodr": "1.2.0",
         "create-react-class": "15.6.3",
-        "electron-log": "3.0.6",
-        "electron-store": "4.0.0",
-        "electron-updater": "4.0.14",
-        "fs-extra": "8.1.0",
-        "mustache": "3.0.1",
-        "nrf-device-setup": "0.6.2",
-        "pc-ble-driver-js": "2.6.2",
-        "react-bootstrap": "1.0.0-beta.9",
-        "react-markdown": "4.1.0",
+        "electron-log": "4.2.0",
+        "electron-store": "5.1.1",
+        "electron-updater": "4.3.1",
+        "eslint-config-airbnb": "18.1.0",
+        "eslint-config-airbnb-base": "14.1.0",
+        "fs-extra": "9.0.0",
+        "jquery": "3.5.1",
+        "mousetrap": "1.6.5",
+        "mustache": "4.0.1",
+        "nrf-device-setup": "0.6.7",
+        "pc-ble-driver-js": "2.7.2",
+        "popper.js": "1.16.1",
+        "react": "16.13.1",
+        "react-dom": "16.13.1",
+        "react-markdown": "4.3.1",
+        "react-redux": "7.2.0",
         "roboto-fontface": "0.10.0",
         "shasum": "1.0.2",
-        "systeminformation": "4.14.1",
         "targz": "1.0.1",
-        "uuid": "3.3.2",
-        "yargs": "13.2.4"
+        "uuid": "8.1.0",
+        "yargs": "15.3.1"
     },
     "jest": {
         "moduleNameMapper": {
-            "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2)$": "<rootDir>/mocks/fileMock.js",
-            "\\.(css|scss)$": "<rootDir>/mocks/styleMock.js",
-            "electron": "<rootDir>/mocks/electronMock.js",
-            "pc-nrfjprog-js": "<rootDir>/mocks/nrfjprogjsMock.js",
-            "nrf-device-lister": "<rootDir>/mocks/emptyMock.js",
-            "nrf-device-setup": "<rootDir>/mocks/emptyMock.js"
+            "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2)$": "<rootDir>/node_modules/pc-nrfconnect-shared/mocks/fileMock.js",
+            "\\.(css|scss)$": "<rootDir>/node_modules/pc-nrfconnect-shared/mocks/emptyMock.js",
+            "^electron$": "<rootDir>/node_modules/pc-nrfconnect-shared/mocks/electronMock.js",
+            "^electron-store$": "<rootDir>/node_modules/pc-nrfconnect-shared/mocks/electronStoreMock.js",
+            "pc-nrfjprog-js|nrf-device-lister|nrf-device-setup": "<rootDir>/node_modules/pc-nrfconnect-shared/mocks/emptyMock.js"
         },
         "transform": {
-            "^.+\\.jsx?$": "babel-jest"
+            "^.+\\.[jt]sx?$": [
+                "babel-jest",
+                {
+                    "configFile": "./node_modules/pc-nrfconnect-shared/config/babel.config.js"
+                }
+            ]
         },
-        "testURL": "file:/",
+        "transformIgnorePatterns": [
+            "node_modules/(?!(pc-nrfconnect-shared)/)"
+        ],
         "setupFilesAfterEnv": [
-            "<rootDir>/test/setupTests.js"
+            "<rootDir>/node_modules/pc-nrfconnect-shared/test/setupTests.js"
         ],
         "snapshotSerializers": [
             "enzyme-to-json/serializer"

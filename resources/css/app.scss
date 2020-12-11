@@ -64,6 +64,7 @@ html, body, #webapp {
     display: flex;
     flex-flow: row;
     height: 100%;
+    min-height: 0;
 
     > div:nth-child(1) {
         flex: 1;
@@ -182,9 +183,9 @@ ul.core-device-selector-item-details {
         position: relative;
         overflow-x: scroll !important;
         background-color: white;
+        height: 155px;
 
         > div {
-            position: absolute;
             display: table;
             min-width: 100%;
         }
@@ -208,6 +209,7 @@ ul.core-device-selector-item-details {
         }
         .core-log-time {
             width: 132px;
+            min-width: 132px;
         }
     }
 

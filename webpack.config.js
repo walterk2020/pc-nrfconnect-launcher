@@ -16,18 +16,19 @@ function createExternals() {
         'nrf-device-setup',
         'osx-temperature-sensor',
     ];
-    return libs.reduce((prev, lib) => (
-        Object.assign(prev, { [lib]: `commonjs ${lib}` })
-    ), {});
+    return libs.reduce(
+        (prev, lib) => Object.assign(prev, { [lib]: `commonjs ${lib}` }),
+        {}
+    );
 }
 
 module.exports = {
     mode: nodeEnv,
     devtool: isProd ? 'hidden-source-map' : 'inline-eval-cheap-source-map',
     entry: {
-        app: './lib/windows/app/index',
-        launcher: './lib/windows/launcher/index',
-        brand19: './resources/css/brand19.scss',
+        app: './src/app',
+        shared: './node_modules/pc-nrfconnect-shared/src/index.js',
+        launcher: './src/launcher',
     },
     output: {
         path: path.resolve('dist'),
@@ -35,38 +36,58 @@ module.exports = {
         filename: '[name]-bundle.js',
     },
     module: {
-        rules: [{
-            test: /\.(js|jsx)$/,
-            use: [{
-                loader: require.resolve('babel-loader'),
-                options: {
-                    cacheDirectory: true,
-                },
-            }, {
-                loader: require.resolve('eslint-loader'),
-            }],
-            exclude: /node_modules/,
-        }, {
-            test: /\.scss|\.css$/,
-            loaders: [
-                MiniCssExtractPlugin.loader,
-                require.resolve('css-loader'),
-                require.resolve('sass-loader'),
-            ],
-        }, {
-            test: /\.(png|gif|ttf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
-            loader: require.resolve('file-loader'),
-        }],
+        rules: [
+            {
+                test: /\.(js|jsx|ts|tsx)$/,
+                use: [
+                    {
+                        loader: require.resolve('babel-loader'),
+                        options: {
+                            cacheDirectory: true,
+                            configFile:
+                                './node_modules/pc-nrfconnect-shared/config/babel.config.js',
+                        },
+                    },
+                    {
+                        loader: require.resolve('eslint-loader'),
+                    },
+                ],
+                exclude: /node_modules\/(?!pc-nrfconnect-shared\/)/,
+            },
+            {
+                test: /\.scss|\.css$/,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    'css-loader',
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            // eslint-disable-next-line global-require
+                            implementation: require('sass'),
+                        },
+                    },
+                ],
+            },
+            {
+                test: /\.(png|gif|ttf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
+                loader: require.resolve('file-loader'),
+            },
+        ],
     },
     resolve: {
-        extensions: ['.js', '.jsx'],
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        symlinks: false,
     },
     plugins: [
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify(nodeEnv),
         }),
         new MiniCssExtractPlugin({
-            filename: '[name].css',
+            // The next line is only needed as long as we still need to support legacy apps.
+            // Later, when we want to drop support for legacy apps, just replace that line with
+            // filename: '[name].css',
+            moduleFilename: ({ name }) =>
+                name === 'app' ? 'legacy.css' : '[name].css',
             chunkFilename: '[id].css',
         }),
     ],
